@@ -3,8 +3,10 @@
   import "../app.css";
 </script>
 
-<section class="bg-emerald-100">
-  <div class="max-w-xl mx-auto min-h-screen p-6">
-    {@render children()}
+<div class="bg-emerald-50 overflow-x-hidden">
+  <div class=" max-w-lg mx-auto py-8 min-h-screen">
+    <main>
+      {@render children()}
+    </main>
   </div>
-</section>
+</div>
