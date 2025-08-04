@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
 
   let isMenuOpen = false;
 
@@ -36,6 +38,20 @@
     }
   }
 
+  // Logout function
+  function logout() {
+    // Clear all localStorage items
+    if (browser) {
+      localStorage.clear();
+    }
+
+    // Close the menu
+    closeMenu();
+
+    // Redirect to login page
+    goto("/authentication/login");
+  }
+
   // Cleanup on component destroy
   onDestroy(() => {
     if (browser) {
@@ -49,22 +65,33 @@
   <div class="px-4">
     <div class="flex justify-between items-center h-16">
       <!-- Logo/Brand -->
-      <div class="flex items-center">
-        <h1 class="text-xl font-bold text-emerald-600">Dashboard</h1>
+      <div class="flex items-center gap-1">
+        <img src="/lofy-logo.png" alt="Lofy Logo" class="w-10 h-10" />
+        <h1 class="text-xl font-bold text-emerald-600">Lofy</h1>
       </div>
-
-      <!-- Hamburger Menu Button -->
-      <button id="menu-button" on:click={toggleMenu} class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors" aria-expanded={isMenuOpen}>
-        <span class="sr-only">Open main menu</span>
-        <!-- Hamburger Icon -->
-        <svg class="h-6 w-6 transition-transform duration-200 {isMenuOpen ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {#if !isMenuOpen}
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          {:else}
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          {/if}
-        </svg>
-      </button>
+      <div class="flex items-center space-x-4">
+        <!-- Link to Whatsapp -->
+        <a href="https://wa.me/15550437601" target="_blank" rel="noopener noreferrer" class="border-2 border-emerald-500 text-emerald-600 px-2 py-1 rounded-md">
+          <span class="flex gap-2 items-center">
+            <p class="text-xs">Chat with Lofy</p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
+          </span>
+        </a>
+        <!-- Hamburger Menu Button -->
+        <button id="menu-button" on:click={toggleMenu} class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors" aria-expanded={isMenuOpen}>
+          <span class="sr-only">Open main menu</span>
+          <!-- Hamburger Icon -->
+          <svg class="h-6 w-6 transition-transform duration-200 {isMenuOpen ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {#if !isMenuOpen}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            {:else}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            {/if}
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -90,21 +117,36 @@
 
       <!-- Menu Items -->
       <nav class="flex-1 px-4 py-6 space-y-4">
-        <a href="/dashboard" class="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors" on:click={closeMenu}>
+        <a
+          href="/dashboard"
+          class={`flex items-center px-3 py-2 rounded-md transition-colors
+          ${$page.url.pathname === "/dashboard" ? "bg-emerald-100 text-emerald-700 font-medium" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"}`}
+          on:click={closeMenu}
+        >
           <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
           </svg>
           Dashboard
         </a>
 
-        <a href="/dashboard/integration" class="flex items-center w-full px-3 py-2 text-gray-700 rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-left" on:click={closeMenu}>
+        <a
+          href="/dashboard/integration"
+          class={`flex items-center w-full px-3 py-2 rounded-md transition-colors text-left
+          ${$page.url.pathname.startsWith("/dashboard/integration") ? "bg-emerald-100 text-emerald-700 font-medium" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"}`}
+          on:click={closeMenu}
+        >
           <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
           </svg>
           Integration
         </a>
 
-        <a href="/dashboard/settings" class="flex items-center w-full px-3 py-2 text-gray-700 rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-left" on:click={closeMenu}>
+        <a
+          href="/dashboard/settings"
+          class={`flex items-center w-full px-3 py-2 rounded-md transition-colors text-left
+          ${$page.url.pathname.startsWith("/dashboard/settings") ? "bg-emerald-100 text-emerald-700 font-medium" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"}`}
+          on:click={closeMenu}
+        >
           <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
@@ -117,13 +159,32 @@
           Settings
         </a>
 
-        <a href="/dashboard/premium" class="flex items-center w-full px-3 py-2 text-gray-700 rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-left" on:click={closeMenu}>
+        <a
+          href="/dashboard/premium"
+          class={`flex items-center w-full px-3 py-2 rounded-md transition-colors text-left
+          ${$page.url.pathname.startsWith("/dashboard/premium") ? "bg-emerald-100 text-emerald-700 font-medium" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"}`}
+          on:click={closeMenu}
+        >
           <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
           </svg>
           Premium
         </a>
       </nav>
+
+      <!-- Logout at bottom -->
+      <div class="px-4 pb-4">
+        <!-- Divider -->
+        <div class="border-t border-gray-200 mb-4"></div>
+
+        <!-- Logout -->
+        <button type="button" class="flex items-center w-full px-3 py-2 text-red-600 rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-left" on:click={logout}>
+          <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Logout
+        </button>
+      </div>
     </div>
   </div>
 </header>

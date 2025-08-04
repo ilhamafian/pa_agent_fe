@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_BACKEND_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   // Phone number state
   let selectedCountryCode = "+60";
@@ -113,20 +114,35 @@
   }
 
   async function login() {
-    // const response = await fetch("http://127.0.0.1:8000/user_login", {
-    const response = await fetch("https://pa-agent-be-394446919605.asia-southeast1.run.app/user_login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        phone_number: selectedCountryCode.replace("+", "") + phoneNumber,
-        PIN: pinDigits.join(""),
-      }),
-    });
-    const result = await response.json();
-    console.log("Server replied:", result);
-    goto("/dashboard");
+    try {
+      const response = await fetch(`${PUBLIC_BACKEND_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone_number: selectedCountryCode.replace("+", "") + phoneNumber,
+          PIN: pinDigits.join(""),
+        }),
+      });
+
+      const result = await response.json();
+      console.log("Server replied:", result);
+
+      if (response.ok) {
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("user_id", result.user_id);
+        localStorage.setItem("nickname", result.nickname);
+        localStorage.setItem("phone_number", result.phone_number);
+
+        goto("/dashboard");
+      } else {
+        alert(result.detail || result.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong during login");
+    }
   }
 </script>
 

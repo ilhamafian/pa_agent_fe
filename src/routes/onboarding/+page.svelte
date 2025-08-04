@@ -1,6 +1,42 @@
 <script lang="ts">
+  import { PUBLIC_BACKEND_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { onMount } from "svelte";
+
+  onMount(async () => {
+    const query = $page.url.searchParams;
+    const phone_number = query.get("phone_number");
+    const token = localStorage.getItem("token");
+
+    // 🚫 No phone or token → send to login
+    if (!phone_number || !token) {
+      return goto("/authentication/login");
+    }
+
+    // ✅ Already logged in → go to dashboard
+    if (token) {
+      return goto("/dashboard");
+    }
+
+    // Check if phone number is already onboarded
+    const res = await fetch(`${PUBLIC_BACKEND_URL}/check_phone_number_exist`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ phone_number }),
+    });
+
+    const data = await res.json();
+
+    // 🚫 Already onboarded → send to login
+    if (data.exists) {
+      return goto("/authentication/login");
+    }
+
+    // ✅ Else, continue to onboarding page
+  });
 
   let currentStep = 0; // 0 = welcome, 1-4 = steps
   const totalSteps = 4;
