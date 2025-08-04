@@ -10,8 +10,8 @@
     const token = localStorage.getItem("token");
 
     // 🚫 No phone or token → send to login
-    if (!phone_number || !token) {
-      console.log("No phone number or token");
+    if (!phone_number) {
+      console.log("No phone number");
       return goto("/authentication/login");
     }
 
