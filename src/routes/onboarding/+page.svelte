@@ -11,11 +11,13 @@
 
     // 🚫 No phone or token → send to login
     if (!phone_number || !token) {
+      console.log("No phone number or token");
       return goto("/authentication/login");
     }
 
     // ✅ Already logged in → go to dashboard
     if (token) {
+      console.log("Already logged in");
       return goto("/dashboard");
     }
 
@@ -32,6 +34,7 @@
 
     // 🚫 Already onboarded → send to login
     if (data.exists) {
+      console.log("Already onboarded");
       return goto("/authentication/login");
     }
 
