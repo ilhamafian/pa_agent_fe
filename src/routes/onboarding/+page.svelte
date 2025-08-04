@@ -4,6 +4,8 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
 
+  let urlPhoneNumber = "";
+
   onMount(async () => {
     const query = $page.url.searchParams;
     const phone_number = query.get("phone_number");
@@ -38,14 +40,56 @@
       return goto("/authentication/login");
     }
 
+    // Extract phone number from URL query parameter
+    urlPhoneNumber = phone_number;
+    console.log("In urlPhoneNumber:", urlPhoneNumber);
+
     // ✅ Else, continue to onboarding page
   });
 
+  async function onboarding() {
+    if (currentStep < totalSteps) {
+      if (validateStep(currentStep)) {
+        currentStep++;
+      }
+    } else {
+      if (validateStep(currentStep)) {
+        // Structure the form data as requested
+        const formOutput = {
+          PIN: pinDigits.join(""),
+          phone_number: urlPhoneNumber,
+          nickname: formData.nickname,
+          email: formData.email,
+          language: formData.language,
+          metadata: {
+            q1: selectedTools,
+            q2: formData.question_2,
+            q3: formData.question_3,
+            q4: formData.question_4,
+          },
+        };
+
+        // Console log the structured data
+        console.log("Form submission data:", formOutput);
+        const response = await fetch(`${PUBLIC_BACKEND_URL}/user_onboarding`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formOutput),
+        });
+
+        const result = await response.json();
+        console.log("Server replied:", result);
+
+        // Navigate to dashboard
+        goto("/dashboard");
+      }
+    }
+  }
+
   let currentStep = 0; // 0 = welcome, 1-4 = steps
   const totalSteps = 4;
-
-  // Extract phone number from URL query parameter
-  $: urlPhoneNumber = $page.url.searchParams.keys().next().value || "";
 
   // Multi-select state for productivity tools
   let selectedTools: string[] = [];
@@ -191,48 +235,6 @@
     }
 
     return isValid;
-  }
-
-  async function onboarding() {
-    if (currentStep < totalSteps) {
-      if (validateStep(currentStep)) {
-        currentStep++;
-      }
-    } else {
-      if (validateStep(currentStep)) {
-        // Structure the form data as requested
-        const formOutput = {
-          PIN: pinDigits.join(""),
-          phone_number: urlPhoneNumber,
-          nickname: formData.nickname,
-          email: formData.email,
-          language: formData.language,
-          metadata: {
-            q1: selectedTools,
-            q2: formData.question_2,
-            q3: formData.question_3,
-            q4: formData.question_4,
-          },
-        };
-
-        // Console log the structured data
-        console.log("Form submission data:", formOutput);
-        // const response = await fetch("http://127.0.0.1:8000/user_onboarding", {
-        const response = await fetch("https://pa-agent-be-394446919605.asia-southeast1.run.app/user_onboarding", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formOutput),
-        });
-
-        const result = await response.json();
-        console.log("Server replied:", result);
-
-        // Navigate to dashboard
-        goto("/dashboard");
-      }
-    }
   }
 
   function prevStep() {
