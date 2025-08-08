@@ -1,5 +1,23 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { PUBLIC_BACKEND_URL } from "$env/static/public";
   import { Switch } from "$lib/components/ui/switch";
+  import { onMount } from "svelte";
+
+  onMount(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return goto("/authentication/login");
+    }
+
+    const res = await fetch(`${PUBLIC_BACKEND_URL}/get_settings_info`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  });
 
   //   Settings state
   let profileData = {

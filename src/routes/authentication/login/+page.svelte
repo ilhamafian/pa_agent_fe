@@ -204,7 +204,7 @@
           <input
             bind:this={pinInputs[index]}
             id="pin"
-            type="text"
+            type="password"
             inputmode="numeric"
             pattern="[0-9]"
             maxlength="1"
