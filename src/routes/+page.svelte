@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import * as Dialog from "$lib/components/ui/dialog";
+  import { PUBLIC_BACKEND_URL } from "$env/static/public";
 
   const features = [
     {
@@ -45,6 +46,8 @@
   async function handleWaitlistSubmit() {
     waitlistError = "";
     const trimmed = phoneNumber.trim();
+    console.log("trimmed", trimmed);
+
     if (trimmed.length < 7) {
       waitlistError = "Please enter a valid phone number.";
       return;
@@ -52,6 +55,15 @@
     try {
       waitlistSubmitting = true;
       // TODO: send to your backend/waitlist service
+      const response = await fetch(`${PUBLIC_BACKEND_URL}/waitlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phone_number: trimmed }),
+      });
+      const data = await response.json();
+      console.log("data", data);
       await new Promise((r) => setTimeout(r, 500));
       waitlistSuccess = true;
     } catch (e) {
@@ -83,7 +95,7 @@
             <span class="text-primary block">Personal Assistant</span>
             Directly through WhatsApp
           </h1>
-          <p class="text-base text-muted-foreground leading-relaxed">Effortlessly manage your calendar events and tasks with natural language. From booking templates to smart reminders, your AI assistant handles it all.</p>
+          <p class="text-base text-muted-foreground leading-relaxed">Effortlessly manage your calendar events and tasks with natural language. From booking templates to smart reminders, your AI assistant handles it all directly through WhatsApp.</p>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -289,7 +301,7 @@ Time of event: 10:00 AM</pre>
       <p class="text-sm text-primary-foreground/90">Start using your intelligent personal assistant today and experience the future of productivity.</p>
       <div class="flex flex-col gap-3">
         <button on:click={handleJoinWaitlist} class="bg-primary-foreground text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/90 transition-colors shadow-lg"> Join Waitlist Now </button>
-        <a href="/dashboard" class="border border-primary-foreground/20 text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/10 transition-colors"> View Dashboard </a>
+        <!-- <a href="/dashboard" class="border border-primary-foreground/20 text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/10 transition-colors"> View Dashboard </a> -->
       </div>
     </div>
   </section>
@@ -305,11 +317,11 @@ Time of event: 10:00 AM</pre>
 
         <div class="grid grid-cols-2 gap-4 text-center">
           <div class="space-y-2">
-            <h4 class="text-sm font-semibold text-card-foreground">Quick Links</h4>
+            <!-- <h4 class="text-sm font-semibold text-card-foreground">Quick Links</h4> -->
             <ul class="space-y-1 text-xs text-muted-foreground">
-              <li><a href="/dashboard" class="hover:text-foreground transition-colors">Dashboard</a></li>
-              <li><a href="/onboarding" class="hover:text-foreground transition-colors">Get Started</a></li>
-              <li><a href="/dashboard/settings" class="hover:text-foreground transition-colors">Settings</a></li>
+              <!-- <li><a href="/dashboard" class="hover:text-foreground transition-colors">Dashboard</a></li> -->
+              <!-- <li><a href="/onboarding" class="hover:text-foreground transition-colors">Get Started</a></li> -->
+              <!-- <li><a href="/dashboard/settings" class="hover:text-foreground transition-colors">Settings</a></li> -->
             </ul>
           </div>
 
@@ -325,7 +337,7 @@ Time of event: 10:00 AM</pre>
       </div>
 
       <div class="border-t border-border mt-6 pt-4 text-center text-muted-foreground">
-        <p class="text-xs">&copy; 2024 Personal Assistant. All rights reserved.</p>
+        <p class="text-xs">&copy; 2025 Lofy Assistant. All rights reserved.</p>
       </div>
     </div>
   </footer>
@@ -348,7 +360,7 @@ Time of event: 10:00 AM</pre>
       <form class="mt-4 space-y-3" on:submit|preventDefault={handleWaitlistSubmit}>
         <div class="space-y-1">
           <label for="phone" class="text-sm font-medium">Phone number</label>
-          <input id="phone" name="phone" type="tel" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. +1 555 123 4567" bind:value={phoneNumber} inputmode="tel" autocomplete="tel" required />
+          <input id="phone" name="phone" type="tel" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 0179800424" bind:value={phoneNumber} inputmode="tel" autocomplete="tel" required />
         </div>
 
         {#if waitlistError}
