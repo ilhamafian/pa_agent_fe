@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import * as Dialog from "$lib/components/ui/dialog";
 
   const features = [
     {
@@ -28,8 +29,36 @@
     },
   ];
 
-  function handleGetStarted() {
-    goto("/onboarding");
+  let showWaitlistDialog = false;
+  let phoneNumber: string = "";
+  let waitlistSubmitting = false;
+  let waitlistError: string = "";
+  let waitlistSuccess = false;
+
+  function handleJoinWaitlist() {
+    waitlistError = "";
+    waitlistSuccess = false;
+    phoneNumber = "";
+    showWaitlistDialog = true;
+  }
+
+  async function handleWaitlistSubmit() {
+    waitlistError = "";
+    const trimmed = phoneNumber.trim();
+    if (trimmed.length < 7) {
+      waitlistError = "Please enter a valid phone number.";
+      return;
+    }
+    try {
+      waitlistSubmitting = true;
+      // TODO: send to your backend/waitlist service
+      await new Promise((r) => setTimeout(r, 500));
+      waitlistSuccess = true;
+    } catch (e) {
+      waitlistError = "Something went wrong. Please try again.";
+    } finally {
+      waitlistSubmitting = false;
+    }
   }
 
   function handleLearnMore() {
@@ -52,12 +81,13 @@
           <h1 class="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
             Your Smart
             <span class="text-primary block">Personal Assistant</span>
+            Directly through WhatsApp
           </h1>
           <p class="text-base text-muted-foreground leading-relaxed">Effortlessly manage your calendar events and tasks with natural language. From booking templates to smart reminders, your AI assistant handles it all.</p>
         </div>
 
         <div class="flex flex-col gap-3">
-          <button on:click={handleGetStarted} class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg"> Get Started </button>
+          <button on:click={handleJoinWaitlist} class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg"> Join Waitlist</button>
           <button on:click={handleLearnMore} class="border border-border text-foreground px-6 py-3 rounded-lg font-semibold hover:bg-accent transition-colors"> Learn More </button>
         </div>
       </div>
@@ -258,7 +288,7 @@ Time of event: 10:00 AM</pre>
       <h2 class="text-xl font-bold">Ready to Get Organized?</h2>
       <p class="text-sm text-primary-foreground/90">Start using your intelligent personal assistant today and experience the future of productivity.</p>
       <div class="flex flex-col gap-3">
-        <button on:click={handleGetStarted} class="bg-primary-foreground text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/90 transition-colors shadow-lg"> Get Started Now </button>
+        <button on:click={handleJoinWaitlist} class="bg-primary-foreground text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/90 transition-colors shadow-lg"> Join Waitlist Now </button>
         <a href="/dashboard" class="border border-primary-foreground/20 text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/10 transition-colors"> View Dashboard </a>
       </div>
     </div>
@@ -300,3 +330,38 @@ Time of event: 10:00 AM</pre>
     </div>
   </footer>
 </div>
+
+<!-- Waitlist Dialog -->
+<Dialog.Root bind:open={showWaitlistDialog}>
+  <Dialog.Content>
+    <Dialog.Header>
+      <Dialog.Title>Join the Waitlist</Dialog.Title>
+      <Dialog.Description>Enter your phone number and we'll notify you when it's ready.</Dialog.Description>
+    </Dialog.Header>
+
+    {#if waitlistSuccess}
+      <div class="mt-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">Thanks! You're on the waitlist. We'll text you with updates.</div>
+      <Dialog.Footer class="mt-4">
+        <Dialog.Close class="px-4 py-2 rounded-md bg-primary text-primary-foreground">Close</Dialog.Close>
+      </Dialog.Footer>
+    {:else}
+      <form class="mt-4 space-y-3" on:submit|preventDefault={handleWaitlistSubmit}>
+        <div class="space-y-1">
+          <label for="phone" class="text-sm font-medium">Phone number</label>
+          <input id="phone" name="phone" type="tel" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. +1 555 123 4567" bind:value={phoneNumber} inputmode="tel" autocomplete="tel" required />
+        </div>
+
+        {#if waitlistError}
+          <p class="text-sm text-destructive">{waitlistError}</p>
+        {/if}
+
+        <Dialog.Footer class="mt-2 gap-2">
+          <Dialog.Close class="px-4 py-2 text-sm rounded-md border">Cancel</Dialog.Close>
+          <button type="submit" class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground disabled:opacity-50" disabled={waitlistSubmitting}>
+            {waitlistSubmitting ? "Submitting..." : "Join Waitlist"}
+          </button>
+        </Dialog.Footer>
+      </form>
+    {/if}
+  </Dialog.Content>
+</Dialog.Root>
