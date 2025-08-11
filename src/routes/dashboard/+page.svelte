@@ -1,4 +1,95 @@
 <!-- Dashboard Content -->
+<script lang="ts">
+  import { PUBLIC_BACKEND_URL } from "$env/static/public";
+  import { onMount } from "svelte";
+  import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
+
+  interface Event {
+    title: string;
+    date: string;
+    time: string;
+  }
+
+  interface Task {
+    task_id: string;
+    title: string;
+    description: string;
+    priority: "high" | "medium" | "low";
+    status: "pending" | "in_progress" | "completed";
+    created_at: string;
+  }
+
+  interface DashboardData {
+    events: Event[];
+    tasks: Task[];
+  }
+
+  let dashboardData: DashboardData = { events: [], tasks: [] };
+  let loading = true;
+
+  // Reactive calculations for task statistics
+  $: totalTasks = dashboardData.tasks.length;
+  $: completedTasks = dashboardData.tasks.filter((task) => task.status === "completed").length;
+  $: inProgressTasks = dashboardData.tasks.filter((task) => task.status === "in_progress").length;
+  $: pendingTasks = dashboardData.tasks.filter((task) => task.status === "pending").length;
+
+  // Get latest 3 events
+  $: latestEvents = dashboardData.events
+    .sort((a, b) => {
+      // Parse DD-MM-YYYY format for proper sorting
+      const parseDate = (dateStr: string) => {
+        const [day, month, year] = dateStr.split("-");
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      };
+      return parseDate(a.date).getTime() - parseDate(b.date).getTime();
+    })
+    .slice(0, 3);
+
+  // Format date for display
+  function formatEventDate(dateStr: string): string {
+    // Parse date string in DD-MM-YYYY format
+    const [day, month, year] = dateStr.split("-");
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "long",
+      weekday: "long",
+    };
+    return date.toLocaleDateString("en-US", options);
+  }
+
+  onMount(async () => {
+    if (!browser) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return goto("/auth/login");
+    }
+
+    try {
+      const res = await fetch(`${PUBLIC_BACKEND_URL}/get_dashboard_info`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        dashboardData = await res.json();
+        console.log("Dashboard data:", dashboardData);
+      } else {
+        console.error("Failed to fetch dashboard data");
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      loading = false;
+    }
+  });
+</script>
+
 <div class="px-4 py-6">
   <!-- Welcome Section -->
   <div class="mb-6">
@@ -19,7 +110,7 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Total Tasks</p>
-          <p class="text-xl font-bold text-gray-900">24</p>
+          <p class="text-xl font-bold text-gray-900">{loading ? "..." : totalTasks}</p>
         </div>
       </div>
     </div>
@@ -35,7 +126,7 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Completed</p>
-          <p class="text-xl font-bold text-gray-900">18</p>
+          <p class="text-xl font-bold text-gray-900">{loading ? "..." : completedTasks}</p>
         </div>
       </div>
     </div>
@@ -51,7 +142,7 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">In Progress</p>
-          <p class="text-xl font-bold text-gray-900">4</p>
+          <p class="text-xl font-bold text-gray-900">{loading ? "..." : inProgressTasks}</p>
         </div>
       </div>
     </div>
@@ -67,7 +158,7 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Pending</p>
-          <p class="text-xl font-bold text-gray-900">2</p>
+          <p class="text-xl font-bold text-gray-900">{loading ? "..." : pendingTasks}</p>
         </div>
       </div>
     </div>
@@ -78,57 +169,65 @@
     <!-- Recent Tasks -->
     <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-4">
       <h3 class="text-lg font-semibold text-gray-900 mb-3">Recent Tasks</h3>
-      <div class="space-y-3">
-        <div class="flex items-center p-3 bg-gray-50 rounded-md">
-          <div class="flex-shrink-0 w-4 h-4 bg-emerald-500 rounded-full"></div>
-          <div class="ml-3 flex-1">
-            <p class="text-sm font-medium text-gray-900">Complete project proposal</p>
-            <p class="text-xs text-gray-600">High Priority</p>
-          </div>
+      {#if loading}
+        <div class="flex items-center justify-center py-8">
+          <div class="text-gray-500">Loading tasks...</div>
         </div>
-
-        <div class="flex items-center p-3 bg-gray-50 rounded-md">
-          <div class="flex-shrink-0 w-4 h-4 bg-blue-500 rounded-full"></div>
-          <div class="ml-3 flex-1">
-            <p class="text-sm font-medium text-gray-900">Review team feedback</p>
-            <p class="text-xs text-gray-600">Medium Priority</p>
-          </div>
+      {:else if dashboardData.tasks.length === 0}
+        <div class="text-center py-8 text-gray-500">
+          <p>No tasks yet. Create your first task to get started!</p>
         </div>
-
-        <div class="flex items-center p-3 bg-gray-50 rounded-md">
-          <div class="flex-shrink-0 w-4 h-4 border-2 border-gray-300 rounded-full"></div>
-          <div class="ml-3 flex-1">
-            <p class="text-sm font-medium text-gray-900">Schedule client meeting</p>
-            <p class="text-xs text-gray-600">Medium Priority</p>
-          </div>
+      {:else}
+        <div class="space-y-3">
+          {#each dashboardData.tasks as task}
+            <div class="flex items-center p-3 bg-gray-50 rounded-md">
+              {#if task.status === "completed"}
+                <div class="flex-shrink-0 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
+                  <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              {:else if task.status === "in_progress"}
+                <div class="flex-shrink-0 w-4 h-4 bg-blue-500 rounded-full"></div>
+              {:else}
+                <div class="flex-shrink-0 w-4 h-4 border-2 border-gray-300 rounded-full"></div>
+              {/if}
+              <div class="ml-3 flex-1">
+                <p class="text-sm font-medium text-gray-900">{task.title}</p>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs text-gray-600 capitalize">{task.priority} Priority</span>
+                  <span class="text-xs text-gray-400">•</span>
+                  <span class="text-xs text-gray-600 capitalize">{task.status.replace("_", " ")}</span>
+                </div>
+              </div>
+            </div>
+          {/each}
         </div>
-      </div>
+      {/if}
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-4">
       <h3 class="text-lg font-semibold text-gray-900 mb-3">Upcoming Events</h3>
-      <div class="space-y-3">
-        <div class="flex items-center p-3 bg-gray-50 border-l-4 border-emerald-500">
-          <div class="ml-3 flex-1">
-            <p class="text-sm font-medium text-gray-900">Follow up with John Doe</p>
-            <p class="text-xs text-gray-600">15th August (Friday), 10:00 AM until 12:00 PM</p>
-          </div>
+      {#if loading}
+        <div class="flex items-center justify-center py-8">
+          <div class="text-gray-500">Loading events...</div>
         </div>
-
-        <div class="flex items-center p-3 bg-gray-50 border-l-4 border-emerald-500">
-          <div class="ml-3 flex-1">
-            <p class="text-sm font-medium text-gray-900">Anniversary Dinner Date w Wife</p>
-            <p class="text-xs text-gray-600">16th August (Saturday), 6:00 PM until 10:00 PM</p>
-          </div>
+      {:else if latestEvents.length === 0}
+        <div class="text-center py-8 text-gray-500">
+          <p>No upcoming events. Schedule your first event!</p>
         </div>
-
-        <div class="flex items-center p-3 bg-gray-50 border-l-4 border-emerald-500">
-          <div class="ml-3 flex-1">
-            <p class="text-sm font-medium text-gray-900">Badminton Session with Team</p>
-            <p class="text-xs text-gray-600">18th August (Monday), 8:00 PM until 10:00 PM</p>
-          </div>
+      {:else}
+        <div class="space-y-3">
+          {#each latestEvents as event}
+            <div class="flex items-center p-3 bg-gray-50 border-l-4 border-emerald-500">
+              <div class="ml-3 flex-1">
+                <p class="text-sm font-medium text-gray-900">{event.title}</p>
+                <p class="text-xs text-gray-600">{formatEventDate(event.date)}, {event.time}</p>
+              </div>
+            </div>
+          {/each}
         </div>
-      </div>
+      {/if}
     </div>
 
     <!-- Quick Actions -->

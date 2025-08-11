@@ -3,10 +3,13 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
+  import { browser } from "$app/environment";
 
   let urlPhoneNumber = "";
 
   onMount(async () => {
+    if (!browser) return;
+
     const query = $page.url.searchParams;
     const phone_number = query.get("phone_number");
     const token = localStorage.getItem("token");

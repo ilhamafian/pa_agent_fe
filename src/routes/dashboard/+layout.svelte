@@ -2,17 +2,20 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { browser } from "$app/environment";
   import HamburgerMenu from "$lib/components/hamburger/hamburger-menu.svelte";
 
   export let children;
   let childrenVisible = false;
 
   onMount(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      goto("/auth/login");
-    } else {
-      childrenVisible = true;
+    if (browser) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        goto("/auth/login");
+      } else {
+        childrenVisible = true;
+      }
     }
   });
 </script>
