@@ -1,49 +1,151 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { PUBLIC_BACKEND_URL } from "$env/static/public";
-  import { Switch } from "$lib/components/ui/switch";
+  import { Switch } from "$lib/components/switch";
   import { onMount } from "svelte";
 
+  // Settings state
+  let profileData = {
+    name: "",
+    email: "",
+    language: "",
+  };
+  let dailyBriefing = {
+    enabled: false,
+    time: "",
+  };
+  // Get settings info
   onMount(async () => {
     const token = localStorage.getItem("token");
+    const user_id = localStorage.getItem("user_id");
     if (!token) {
-      return goto("/authentication/login");
+      return goto("/auth/login");
     }
 
-    const res = await fetch(`${PUBLIC_BACKEND_URL}/get_settings_info`, {
+    const res = await fetch(`${PUBLIC_BACKEND_URL}/get_settings_info?user_id=${user_id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
+
+    const data = await res.json();
+
+    profileData = {
+      name: data.name,
+      email: data.email,
+      language: data.language,
+    };
+
+    dailyBriefing = {
+      enabled: data.daily_briefing.enabled,
+      time: String(data.daily_briefing.time)
+        .padStart(4, "0") // Ensure 4 digits
+        .replace(/(\d{2})(\d{2})/, "$1:$2"), // Insert colon
+    };
   });
 
-  //   Settings state
-  let profileData = {
-    name: "John Doe",
-    email: "john@example.com",
-    language: "English",
-    profession: "Working Professional",
-  };
+  // Loading states
+  let profileSaving = false;
+  let notificationsSaving = false;
+  let profileError = "";
+  let notificationsError = "";
+  let profileSuccess = false;
+  let notificationsSuccess = false;
 
-  let notificationSettings = {
-    taskReminders: false,
-    calendarReminders: false,
-  };
+  async function saveProfile() {
+    profileSaving = true;
+    profileError = "";
+    profileSuccess = false;
 
-  // Task reminder settings
-  let taskReminderSettings = {
-    frequency: "daily", // "daily" or "weekly"
-    time: "09:00",
-    day: "monday",
-  };
+    try {
+      const token = localStorage.getItem("token");
+      const user_id = localStorage.getItem("user_id");
 
-  let calendarReminderSettings = {
-    frequency: "daily", // "daily" or "weekly"
-    time: "09:00",
-    day: "monday",
-  };
+      if (!token) {
+        goto("/auth/login");
+        return;
+      }
+
+      const response = await fetch(`${PUBLIC_BACKEND_URL}/update_profile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_id,
+          name: profileData.name,
+          language: profileData.language,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save profile");
+      }
+
+      profileSuccess = true;
+      setTimeout(() => {
+        profileSuccess = false;
+      }, 3000);
+    } catch (error) {
+      profileError = error instanceof Error ? error.message : "Failed to save profile";
+    } finally {
+      profileSaving = false;
+    }
+  }
+
+  async function saveNotifications() {
+    notificationsSaving = true;
+    notificationsError = "";
+    notificationsSuccess = false;
+
+    try {
+      const token = localStorage.getItem("token");
+      const user_id = localStorage.getItem("user_id");
+
+      if (!token) {
+        goto("/auth/login");
+        return;
+      }
+      // Convert time back to integer format (e.g., "09:30" -> 930)
+      let timeInteger = 0;
+      if (dailyBriefing.time) {
+        timeInteger = parseInt(dailyBriefing.time.replace(":", ""));
+      }
+
+      const response = await fetch(`${PUBLIC_BACKEND_URL}/update_notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_id,
+          daily_briefing: {
+            enabled: dailyBriefing.enabled,
+            time: timeInteger,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save notification settings");
+      }
+
+      notificationsSuccess = true;
+      setTimeout(() => {
+        notificationsSuccess = false;
+      }, 3000);
+    } catch (error) {
+      notificationsError = error instanceof Error ? error.message : "Failed to save notification settings";
+    } finally {
+      notificationsSaving = false;
+    }
+  }
 
   // PIN change state
   let showPinChange = false;
@@ -52,30 +154,63 @@
     newPin: "",
     confirmPin: "",
   };
+  let pinChanging = false;
+  let pinError = "";
+  let pinSuccess = false;
 
-  function saveProfile() {
-    // Handle profile save
-    console.log("Profile saved:", profileData);
-  }
-
-  function saveNotifications() {
-    // Handle notification settings save
-    console.log("Notifications saved:", notificationSettings);
-  }
-
-  function changePin() {
+  async function changePin() {
     if (pinChangeData.newPin !== pinChangeData.confirmPin) {
-      alert("PINs don't match");
+      pinError = "PINs don't match";
       return;
     }
     if (pinChangeData.newPin.length !== 6) {
-      alert("PIN must be 6 digits");
+      pinError = "PIN must be 6 digits";
       return;
     }
-    // Handle PIN change
-    console.log("PIN changed");
-    showPinChange = false;
-    pinChangeData = { currentPin: "", newPin: "", confirmPin: "" };
+
+    pinChanging = true;
+    pinError = "";
+    pinSuccess = false;
+
+    try {
+      const token = localStorage.getItem("token");
+      const user_id = localStorage.getItem("user_id");
+
+      if (!token) {
+        goto("/auth/login");
+        return;
+      }
+
+      const response = await fetch(`${PUBLIC_BACKEND_URL}/change_pin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_id,
+          current_pin: pinChangeData.currentPin,
+          new_pin: pinChangeData.newPin,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to change PIN");
+      }
+
+      pinSuccess = true;
+      showPinChange = false;
+      pinChangeData = { currentPin: "", newPin: "", confirmPin: "" };
+
+      setTimeout(() => {
+        pinSuccess = false;
+      }, 3000);
+    } catch (error) {
+      pinError = error instanceof Error ? error.message : "Failed to change PIN";
+    } finally {
+      pinChanging = false;
+    }
   }
 </script>
 
@@ -121,7 +256,20 @@
           </select>
         </div>
 
-        <button on:click={saveProfile} class="w-full px-4 py-2 bg-emerald-500 text-white rounded-md active:bg-emerald-600 transition-colors"> Save Profile </button>
+        <!-- Profile Error/Success Messages -->
+        {#if profileError}
+          <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+            {profileError}
+          </div>
+        {/if}
+
+        {#if profileSuccess}
+          <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-md text-sm">Profile saved successfully!</div>
+        {/if}
+
+        <button on:click={saveProfile} disabled={profileSaving} class="w-full px-4 py-2 bg-emerald-500 text-white rounded-md active:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          {profileSaving ? "Saving..." : "Save Profile"}
+        </button>
       </div>
     </div>
 
@@ -139,65 +287,36 @@
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-900">Task Reminders</p>
-            <p class="text-xs text-gray-500">Get notified about upcoming tasks</p>
-          </div>
-          <Switch bind:checked={notificationSettings.taskReminders} />
-        </div>
-
-        {#if notificationSettings.taskReminders}
-          <div class="bg-gray-100 rounded-lg p-4 space-y-4">
-            <div>
-              <label for="reminder-frequency" class="block text-sm font-medium text-gray-700 mb-2">Reminder Frequency</label>
-              <select id="reminder-frequency" bind:value={taskReminderSettings.frequency} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-                <option value="daily">Daily Reminder</option>
-                <option value="weekly">Weekly Reminder</option>
-              </select>
-            </div>
-
-            {#if taskReminderSettings.frequency === "daily"}
-              <div>
-                <label for="reminder-time" class="block text-sm font-medium text-gray-700 mb-2">Reminder Time</label>
-                <input id="reminder-time" type="time" bind:value={taskReminderSettings.time} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white" />
-                <p class="text-xs text-gray-500 mt-1">When to send daily task reminders</p>
-              </div>
-            {:else if taskReminderSettings.frequency === "weekly"}
-              <div>
-                <label for="reminder-day" class="block text-sm font-medium text-gray-700 mb-2">Reminder Day</label>
-                <select id="reminder-day" bind:value={taskReminderSettings.day} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-                  <option value="monday">Monday</option>
-                  <option value="tuesday">Tuesday</option>
-                  <option value="wednesday">Wednesday</option>
-                  <option value="thursday">Thursday</option>
-                  <option value="friday">Friday</option>
-                  <option value="saturday">Saturday</option>
-                  <option value="sunday">Sunday</option>
-                </select>
-                <p class="text-xs text-gray-500 mt-1">Which day to send weekly task summaries</p>
-              </div>
-            {/if}
-          </div>
-        {/if}
-
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-900">Calendar Event Reminders</p>
+            <p class="text-sm font-medium text-gray-900">Daily briefing</p>
             <p class="text-xs text-gray-500">Get notified about upcoming events</p>
           </div>
-          <Switch bind:checked={notificationSettings.calendarReminders} />
+          <Switch bind:checked={dailyBriefing.enabled} />
         </div>
 
-        {#if notificationSettings.calendarReminders}
+        {#if dailyBriefing.enabled}
           <div class="bg-gray-100 rounded-lg p-4 space-y-4">
             <div>
               <label for="reminder-time" class="block text-sm font-medium text-gray-700 mb-2">Reminder Time</label>
-              <input id="reminder-time" type="time" bind:value={calendarReminderSettings.time} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white" />
+              <input id="reminder-time" type="time" bind:value={dailyBriefing.time} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white" />
               <p class="text-xs text-gray-500 mt-1">When to send daily calendar reminders</p>
             </div>
           </div>
         {/if}
 
-        <button on:click={saveNotifications} class="w-full px-4 py-2 bg-emerald-500 text-white rounded-md active:bg-emerald-600 transition-colors"> Save Notifications </button>
+        <!-- Notifications Error/Success Messages -->
+        {#if notificationsError}
+          <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+            {notificationsError}
+          </div>
+        {/if}
+
+        {#if notificationsSuccess}
+          <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-md text-sm">Notification settings saved successfully!</div>
+        {/if}
+
+        <button on:click={saveNotifications} disabled={notificationsSaving} class="w-full px-4 py-2 bg-emerald-500 text-white rounded-md active:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          {notificationsSaving ? "Saving..." : "Save Notifications"}
+        </button>
       </div>
     </div>
 
@@ -215,6 +334,12 @@
       {#if !showPinChange}
         <div>
           <p class="text-sm text-gray-600 mb-4">Keep your account secure by updating your PIN regularly.</p>
+
+          <!-- PIN Success Message -->
+          {#if pinSuccess}
+            <div class="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-md text-sm mb-4">PIN changed successfully!</div>
+          {/if}
+
           <button on:click={() => (showPinChange = true)} class="w-full px-4 py-2 bg-red-500 text-white rounded-md active:bg-red-600 transition-colors"> Change PIN </button>
         </div>
       {:else}
@@ -234,14 +359,25 @@
             <input id="confirm-pin" type="password" maxlength="6" inputmode="numeric" bind:value={pinChangeData.confirmPin} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Confirm new PIN" />
           </div>
 
+          <!-- PIN Error Message -->
+          {#if pinError}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+              {pinError}
+            </div>
+          {/if}
+
           <div class="flex gap-2">
-            <button on:click={changePin} class="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-md active:bg-emerald-600 transition-colors"> Update PIN </button>
+            <button on:click={changePin} disabled={pinChanging} class="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-md active:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {pinChanging ? "Updating..." : "Update PIN"}
+            </button>
             <button
               on:click={() => {
                 showPinChange = false;
                 pinChangeData = { currentPin: "", newPin: "", confirmPin: "" };
+                pinError = "";
               }}
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md active:bg-gray-50 transition-colors"
+              disabled={pinChanging}
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md active:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

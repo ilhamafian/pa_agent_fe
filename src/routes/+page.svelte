@@ -1,32 +1,25 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import * as Dialog from "$lib/components/ui/dialog";
+  import * as Dialog from "$lib/components/dialog";
   import { PUBLIC_BACKEND_URL } from "$env/static/public";
+  import { StickyScrollReveal } from "$lib/components/sticky-scroll";
 
-  const features = [
+  const content = [
     {
       title: "Smart Calendar Management",
       description: "Automatically schedule events, detect booking templates, and manage your calendar with natural language commands.",
-      icon: "📅",
-      examples: ["Schedule a meeting tomorrow at 2pm", "Book a makeup session for Yana on Friday"],
     },
     {
       title: "Intelligent Task Management",
       description: "Create, organize, and track your todo tasks with automatic priority detection and smart categorization.",
-      icon: "✅",
-      examples: ["Add urgent task: Submit project proposal", "Create task: Clean the house this weekend"],
     },
     {
       title: "Flexible Reminders",
       description: "Set reminders for calendar events or custom tasks with natural language time expressions.",
-      icon: "⏰",
-      examples: ["Remind me 30 minutes before my meeting", "Remind me in 3 hours to call mom"],
     },
     {
       title: "Template Detection",
       description: "Automatically recognize and process booking templates from freelancers and service providers.",
-      icon: "📋",
-      examples: ["Makeup artist booking forms", "Service provider templates", "Appointment confirmations"],
     },
   ];
 
@@ -76,67 +69,62 @@
   function handleLearnMore() {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
   }
+
+  function navigateSomewhere() {
+    goto("/onboarding");
+  }
 </script>
 
 <svelte:head>
-  <title>Personal Assistant - Smart Calendar & Task Management</title>
+  <title>Lofy Assistant</title>
   <meta name="description" content="Your intelligent virtual assistant for calendar management, task organization, and smart reminders with Google Calendar integration." />
 </svelte:head>
-
-<div class="min-h-screen">
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent"></div>
-    <div class="relative px-4 pt-12 pb-8">
+<!-- Top Navbar -->
+<nav class="flex justify-between fixed top-0 left-0 right-0 z-50 items-center px-8 py-4 bg-emerald-200/20 backdrop-blur-xl border-b border-white/20 shadow-md">
+  <div class="flex items-center gap-2">
+    <img src="/lofy-logo.png" alt="Lofy" class="w-10 h-10" />
+    <h1 class="text-2xl font-bold">Lofy</h1>
+  </div>
+  <div class="flex items-center gap-2">
+    <button on:click={handleJoinWaitlist} class="bg-transparent border-primary border-2 text-primary px-6 py-2 rounded-lg font-medium hover:bg-primary/10 transition"> Join Waitlist</button>
+  </div>
+</nav>
+<!-- Hero Section -->
+<div class="min-h-screen pt-18">
+  <section class="relative overflow-hidden lg:h-screen">
+    <div class="absolute inset-0 bg-radial-[at_50%_25%] from-emerald-300/50 to-teal-200/50"></div>
+    <!-- Dot Pattern Background -->
+    <svg aria-hidden="true" class="pointer-events-none absolute inset-0 h-full w-full z-10 [mask-image:radial-gradient(ellipse_at_top,white,transparent_80%)] text-primary opacity-80">
+      <defs>
+        <pattern id="dot-pattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+          <circle cx="10" cy="10" r="2" fill="var(--color-emerald-600" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+    </svg>
+    <div class="relative px-4 pt-12 pb-8 z-20">
       <div class="text-center space-y-8">
-        <div class="space-y-4">
-          <h1 class="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
-            Your Smart
-            <span class="text-primary block">Personal Assistant</span>
-            Directly through WhatsApp
-          </h1>
-          <p class="text-base text-muted-foreground leading-relaxed">Effortlessly manage your calendar events and tasks with natural language. From booking templates to smart reminders, your AI assistant handles it all directly through WhatsApp.</p>
+        <div class="flex flex-col items-center">
+          <p class="text-2xl sm:text-7xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 text-transparent bg-clip-text py-6">Lofy; AI Sidekick</p>
+          <p class="text-2xl sm:text-4xl font-bold text-foreground leading-tight py-4">Your Chat Buddy Who Actually Remembers Stuff.</p>
+          <p class="max-w-3xl text-md text-foreground leading-relaxed">
+            Forget the hassle. Manage your schedule and tasks by simply chatting. <br />
+            Lofy handles reminders, bookings and more directly through WhatsApp.
+          </p>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col max-w-md mx-auto text-center gap-3">
           <button on:click={handleJoinWaitlist} class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg"> Join Waitlist</button>
-          <button on:click={handleLearnMore} class="border border-border text-foreground px-6 py-3 rounded-lg font-semibold hover:bg-accent transition-colors"> Learn More </button>
+          <button on:click={handleLearnMore} class="border border-foreground text-foreground px-6 py-3 rounded-lg font-semibold hover:bg-accent transition-colors"> Learn More </button>
         </div>
       </div>
     </div>
   </section>
-
   <!-- Features Section -->
-  <section id="features" class="py-12 bg-card/50">
-    <div class="px-4">
-      <div class="text-center space-y-3 mb-8">
-        <h2 class="text-xl font-bold text-foreground">Powerful Features</h2>
-        <p class="text-sm text-muted-foreground">Everything you need to stay organized and productive</p>
-      </div>
-
-      <div class="space-y-6">
-        {#each features as feature}
-          <div class="bg-card border border-border rounded-lg p-4 hover:shadow-lg transition-shadow">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="text-2xl">{feature.icon}</div>
-              <h3 class="text-lg font-semibold text-card-foreground">
-                {feature.title}
-              </h3>
-            </div>
-            <p class="text-sm text-muted-foreground mb-3 leading-relaxed">
-              {feature.description}
-            </p>
-            <div class="space-y-1">
-              <p class="text-xs font-medium text-foreground">Examples:</p>
-              {#each feature.examples as example}
-                <p class="text-xs text-muted-foreground italic">"{example}"</p>
-              {/each}
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  </section>
+  <div class="">
+    <h2 class="text-3xl my-12 text-center font-bold text-foreground">Features</h2>
+    <StickyScrollReveal {content} />
+  </div>
 
   <!-- How It Works Section -->
   <section class="py-12">
@@ -215,11 +203,11 @@
         <div class="bg-card border border-border rounded-lg p-4">
           <h3 class="text-base font-semibold text-card-foreground mb-3">📝 Makeup Artist Template Example</h3>
           <pre class="text-xs text-muted-foreground whitespace-pre-wrap bg-muted p-3 rounded border">Name: Yana Nazri
-Event: Nikah&touchup sanding
-Location of Makeup: Dewan Seri Endon, KLCC
-Date: 15/12/2024
-Time (need to be ready by): 8:00 AM
-Time of event: 10:00 AM</pre>
+  Event: Nikah&touchup sanding
+  Location of Makeup: Dewan Seri Endon, KLCC
+  Date: 15/12/2024
+  Time (need to be ready by): 8:00 AM
+  Time of event: 10:00 AM</pre>
           <div class="mt-3 p-3 bg-primary/10 rounded border border-primary/20">
             <p class="text-xs font-medium text-foreground mb-1">⚡ Automatically creates:</p>
             <p class="text-xs text-muted-foreground">

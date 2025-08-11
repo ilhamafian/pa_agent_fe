@@ -14,7 +14,7 @@
     // 🚫 No phone or token → send to login
     if (!phone_number) {
       console.log("No phone number");
-      return goto("/authentication/login");
+      return goto("/auth/login");
     }
 
     // ✅ Already logged in → go to dashboard
@@ -37,7 +37,7 @@
     // 🚫 Already onboarded → send to login
     if (data.exists) {
       console.log("Already onboarded");
-      return goto("/authentication/login");
+      return goto("/auth/login");
     }
 
     // Extract phone number from URL query parameter
@@ -354,7 +354,7 @@
   }
 </script>
 
-<div class="p-4">
+<div class="p-4 max-w-lg mx-auto">
   {#if currentStep === 0}
     <!-- Welcome Screen -->
     <h1 class="text-2xl font-bold text-center mb-6">Welcome to Onboarding</h1>

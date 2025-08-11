@@ -4,4 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
+  server: {
+    hmr: {
+      overlay: false, // Disables the HMR error overlay
+    },
+  },
 });

@@ -29,6 +29,7 @@
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.11",
+		"svelte-motion": "^0.12.2",
 		"tailwindcss": "^4.1.11"
 	}
 }
