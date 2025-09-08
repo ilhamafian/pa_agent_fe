@@ -314,11 +314,11 @@
           </div>
 
           <div class="space-y-2">
-            <h4 class="text-sm font-semibold text-card-foreground">Features</h4>
+            <h4 class="text-sm font-semibold text-card-foreground">Legal</h4>
             <ul class="space-y-1 text-xs text-muted-foreground">
-              <li><button type="button" class="hover:text-foreground transition-colors text-left">Calendar</button></li>
-              <li><button type="button" class="hover:text-foreground transition-colors text-left">Tasks</button></li>
-              <li><button type="button" class="hover:text-foreground transition-colors text-left">Reminders</button></li>
+              <li><a href="/privacy-policy" class="hover:text-foreground transition-colors">Privacy Policy</a></li>
+              <li><a href="/terms-agreements" class="hover:text-foreground transition-colors">Terms of Service</a></li>
+              <li><button type="button" class="hover:text-foreground transition-colors text-left">Contact</button></li>
             </ul>
           </div>
         </div>
