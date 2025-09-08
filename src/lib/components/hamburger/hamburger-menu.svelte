@@ -67,7 +67,7 @@
       <!-- Logo/Brand -->
       <div class="flex items-center gap-1">
         <img src="/lofy-logo.png" alt="Lofy Logo" class="w-10 h-10" />
-        <h1 class="text-xl font-bold text-emerald-600">Lofy</h1>
+        <h1 class="text-xl font-bold text-emerald-600">Lofy Assistant</h1>
       </div>
       <div class="flex items-center space-x-4">
         <!-- Link to Whatsapp -->

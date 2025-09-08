@@ -83,7 +83,7 @@
 <nav class="flex justify-between fixed top-0 left-0 right-0 z-50 items-center px-8 py-4 bg-emerald-200/20 backdrop-blur-xl border-b border-white/20 shadow-md">
   <div class="flex items-center gap-2">
     <img src="/lofy-logo.png" alt="Lofy" class="w-10 h-10" />
-    <h1 class="text-2xl font-bold">Lofy</h1>
+    <h1 class="text-2xl font-bold">Lofy Assistant</h1>
   </div>
   <div class="flex items-center gap-2">
     <button on:click={handleJoinWaitlist} class="bg-transparent border-primary border-2 text-primary px-6 py-2 rounded-lg font-medium hover:bg-primary/10 transition"> Join Waitlist</button>
