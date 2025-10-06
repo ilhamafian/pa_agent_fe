@@ -71,7 +71,7 @@
       </div>
       <div class="flex items-center space-x-4">
         <!-- Link to Whatsapp -->
-        <a href="https://wa.me/15550437601" target="_blank" rel="noopener noreferrer" class="border-2 border-emerald-500 text-emerald-600 px-2 py-1 rounded-md">
+        <a href="https://wa.me/60178230685" target="_blank" rel="noopener noreferrer" class="border-2 border-emerald-500 text-emerald-600 px-2 py-1 rounded-md">
           <span class="flex gap-2 items-center">
             <p class="text-xs">Chat with Lofy</p>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">

@@ -14,7 +14,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-12 mx-auto text-emerald-500">
       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
     </svg>
-    <a href="https://wa.me/15550437601" target="_blank" rel="noopener noreferrer" class="px-4 py-2 cursor-pointer hover:bg-emerald-400 ring-2 ring-emerald-400 bg-transparent rounded-md min-w-48 mx-auto block text-center">
+    <a href="https://wa.me/60178230685" target="_blank" rel="noopener noreferrer" class="px-4 py-2 cursor-pointer hover:bg-emerald-400 ring-2 ring-emerald-400 bg-transparent rounded-md min-w-48 mx-auto block text-center">
       <span class="flex gap-3 items-center justify-center">
         <p>Chat with Lofy on WhatsApp</p>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
