@@ -249,10 +249,15 @@
         <div>
           <label for="profile-language" class="block text-sm font-medium text-gray-700 mb-1">Language</label>
           <select id="profile-language" bind:value={profileData.language} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="Malay">Malay</option>
             <option value="English">English</option>
-            <option value="Spanish">Spanish</option>
-            <option value="French">French</option>
-            <option value="German">German</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Korean">Korean</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Russian">Russian</option>
           </select>
         </div>
 
