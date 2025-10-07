@@ -274,7 +274,7 @@
     </div>
 
     <!-- Notification Settings Card -->
-    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-4">
+    <!-- <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-4">
       <div class="flex items-center mb-4">
         <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
           <svg class="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -303,7 +303,6 @@
           </div>
         {/if}
 
-        <!-- Notifications Error/Success Messages -->
         {#if notificationsError}
           <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
             {notificationsError}
@@ -318,7 +317,7 @@
           {notificationsSaving ? "Saving..." : "Save Notifications"}
         </button>
       </div>
-    </div>
+    </div> -->
 
     <!-- PIN Change Card -->
     <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-4">

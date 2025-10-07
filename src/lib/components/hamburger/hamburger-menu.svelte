@@ -132,7 +132,7 @@
           </svg>
           Dashboard
         </a>
-
+        <!-- 
         <a
           href="/dashboard/integration"
           class={`flex items-center w-full px-3 py-2 rounded-md transition-colors text-left
@@ -143,7 +143,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
           </svg>
           Integration
-        </a>
+        </a> -->
 
         <a
           href="/dashboard/settings"
@@ -180,7 +180,7 @@
           Guide
         </a>
 
-        <a
+        <!-- <a
           href="/dashboard/premium"
           class={`flex items-center w-full px-3 py-2 rounded-md transition-colors text-left
           ${$page.url.pathname.startsWith("/dashboard/premium") ? "bg-emerald-100 text-emerald-700 font-medium" : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"}`}
@@ -190,7 +190,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
           </svg>
           Premium
-        </a>
+        </a> -->
       </nav>
 
       <!-- Logout at bottom -->
