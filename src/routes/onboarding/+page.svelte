@@ -609,7 +609,7 @@
                 </svg>
               </div>
               <h3 class="text-lg font-semibold text-gray-900 mb-2">Secure Your Account</h3>
-              <p class="text-sm text-gray-600 mb-6">Enter a 6-digit PIN to secure your account</p>
+              <p class="text-sm text-gray-600 mb-6">Create a 6-digit PIN to secure your account</p>
             </div>
 
             <div class="">
