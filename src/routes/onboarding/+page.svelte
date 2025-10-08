@@ -65,10 +65,9 @@
           email: formData.email,
           language: formData.language,
           metadata: {
-            q1: selectedTools,
-            q2: formData.question_2,
-            q3: formData.question_3,
-            q4: formData.question_4,
+            profession: formData.profession,
+            about_yourself: formData.about_yourself,
+            source: formData.source,
           },
         };
 
@@ -104,10 +103,9 @@
     nickname: "",
     email: "",
     language: "",
-    question_1: [] as string[],
-    question_2: "",
-    question_3: "",
-    question_4: "",
+    profession: "",
+    about_yourself: "",
+    source: "",
   };
 
   // PIN verification state
@@ -119,9 +117,8 @@
     nickname: "",
     email: "",
     language: "",
-    question_1: "",
-    question_2: "",
-    question_3: "",
+    profession: "",
+    about_yourself: "",
     pin: "",
   };
 
@@ -129,13 +126,10 @@
     nickname: false,
     email: false,
     language: false,
-    question_1: false,
-    question_2: false,
-    question_3: false,
+    profession: false,
+    about_yourself: false,
     pin: false,
   };
-
-  const question_1: string[] = ["Notion", "Google Tasks", "Todoist", "Trello", "Asana", "Monday.com", "ClickUp", "Slack", "None"];
 
   const steps = [
     {
@@ -194,34 +188,25 @@
     }
 
     if (step === 2) {
-      // Validate productivity tools (at least one selection)
-      if (selectedTools.length === 0) {
-        errors.question_1 = "Please select at least one option";
+      // Validate profession
+      if (!formData.profession) {
+        errors.profession = "Please select your profession";
         isValid = false;
       } else {
-        errors.question_1 = "";
+        errors.profession = "";
       }
 
-      // Validate question_2
-      if (!formData.question_2) {
-        errors.question_2 = "Please select your profession";
+      // Validate about_yourself textarea
+      if (!formData.about_yourself.trim()) {
+        errors.about_yourself = "Please tell us more about yourself";
         isValid = false;
       } else {
-        errors.question_2 = "";
-      }
-
-      // Validate question_3 textarea
-      if (!formData.question_3.trim()) {
-        errors.question_3 = "Please share what you struggle to keep track of";
-        isValid = false;
-      } else {
-        errors.question_3 = "";
+        errors.about_yourself = "";
       }
 
       // Mark fields as touched
-      touched.question_1 = true;
-      touched.question_2 = true;
-      touched.question_3 = true;
+      touched.profession = true;
+      touched.about_yourself = true;
     }
 
     if (step === 3) {
@@ -245,41 +230,6 @@
       currentStep--;
     } else {
       currentStep = 0; // Back to welcome
-    }
-  }
-
-  function toggleTool(tool: string) {
-    if (selectedTools.includes(tool)) {
-      selectedTools = selectedTools.filter((t) => t !== tool);
-    } else {
-      selectedTools = [...selectedTools, tool];
-    }
-    formData.question_1 = selectedTools;
-
-    // Clear validation error when user makes selection
-    if (selectedTools.length > 0) {
-      errors.question_1 = "";
-    }
-  }
-
-  function removeTool(tool: string) {
-    selectedTools = selectedTools.filter((t) => t !== tool);
-    formData.question_1 = selectedTools;
-
-    // Show validation error if no tools selected
-    if (selectedTools.length === 0 && touched.question_1) {
-      errors.question_1 = "Please select at least one option";
-    }
-  }
-
-  function addOtherTool() {
-    if (othersInputValue.trim() && !selectedTools.includes(othersInputValue.trim())) {
-      selectedTools = [...selectedTools, othersInputValue.trim()];
-      formData.question_1 = selectedTools;
-      othersInputValue = "";
-
-      // Clear validation error when user adds tool
-      errors.question_1 = "";
     }
   }
 
@@ -465,10 +415,10 @@
           </div>
         {:else if currentStep === 2}
           <div class="space-y-4">
-            <div>
-              <label for="question-1" class="block text-sm font-medium text-gray-700 mb-2">Do you use other productivity tools?</label>
-              <!-- Selected Tools Display -->
-              {#if selectedTools.length > 0}
+            <!-- <div> -->
+            <!-- <label for="question-1" class="block text-sm font-medium text-gray-700 mb-2">Do you use other productivity tools?</label> -->
+            <!-- Selected Tools Display -->
+            <!-- {#if selectedTools.length > 0}
                 <div class="flex flex-wrap gap-2 mb-3">
                   {#each selectedTools as tool}
                     <button class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-emerald-200 text-emerald-800 transition-colors" on:click={() => removeTool(tool)}>
@@ -479,10 +429,10 @@
                     </button>
                   {/each}
                 </div>
-              {/if}
+              {/if} -->
 
-              <!-- Custom Multi-Select Dropdown -->
-              <div class="relative">
+            <!-- Custom Multi-Select Dropdown -->
+            <!-- <div class="relative">
                 <button
                   id="question-1"
                   type="button"
@@ -508,10 +458,10 @@
                           </svg>
                         {/if}
                       </button>
-                    {/each}
+                    {/each} -->
 
-                    <!-- Add Other Input in Dropdown -->
-                    <div class="border-t border-gray-200 p-2">
+            <!-- Add Other Input in Dropdown -->
+            <!-- <div class="border-t border-gray-200 p-2">
                       <div class="flex gap-2">
                         <input
                           type="text"
@@ -545,17 +495,17 @@
               {#if errors.question_1 && touched.question_1}
                 <p class="mt-1 text-sm text-red-600">{errors.question_1}</p>
               {/if}
-            </div>
+            </div> -->
             <div>
-              <label for="question-2" class="block text-sm font-medium text-gray-700 mb-2">Are you a student or professional?</label>
+              <label for="profession" class="block text-sm font-medium text-gray-700 mb-2">Are you a student or a professional?</label>
               <select
-                id="question-2"
-                bind:value={formData.question_2}
-                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition-colors {errors.question_2 && touched.question_2 ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-emerald-500'}"
+                id="profession"
+                bind:value={formData.profession}
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition-colors {errors.profession && touched.profession ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-emerald-500'}"
                 on:change={() => {
-                  touched.question_2 = true;
-                  if (formData.question_2) {
-                    errors.question_2 = "";
+                  touched.profession = true;
+                  if (formData.profession) {
+                    errors.profession = "";
                   }
                 }}
               >
@@ -566,31 +516,31 @@
                 <option value="Entrepreneur">Entrepreneur</option>
                 <option value="Other">Other</option>
               </select>
-              {#if errors.question_2 && touched.question_2}
-                <p class="mt-1 text-sm text-red-600">{errors.question_2}</p>
+              {#if errors.profession && touched.profession}
+                <p class="mt-1 text-sm text-red-600">{errors.profession}</p>
               {/if}
             </div>
             <div>
-              <label for="question-3" class="block text-sm font-medium text-gray-700 mb-2">What’s one thing you struggle to keep track of?</label>
+              <label for="about_yourself" class="block text-sm font-medium text-gray-700 mb-2">Can you tell me more about yourself?</label>
               <textarea
-                id="question-3"
-                bind:value={formData.question_3}
-                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 min-h-[80px] transition-colors {errors.question_3 && touched.question_3 ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-emerald-500'}"
-                placeholder="Events, tasks, appointments, etc."
-                on:blur={() => (touched.question_3 = true)}
+                id="about_yourself"
+                bind:value={formData.about_yourself}
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 min-h-[140px] transition-colors {errors.about_yourself && touched.about_yourself ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-emerald-500'}"
+                placeholder="Tell me about yourself like your work, hobbies, interests, goals, etc. The more details, the better!"
+                on:blur={() => (touched.about_yourself = true)}
                 on:input={() => {
-                  if (formData.question_3.trim()) {
-                    errors.question_3 = "";
+                  if (formData.about_yourself.trim()) {
+                    errors.about_yourself = "";
                   }
                 }}
               ></textarea>
-              {#if errors.question_3 && touched.question_3}
-                <p class="mt-1 text-sm text-red-600">{errors.question_3}</p>
+              {#if errors.about_yourself && touched.about_yourself}
+                <p class="mt-1 text-sm text-red-600">{errors.about_yourself}</p>
               {/if}
             </div>
             <div>
-              <label for="question-4" class="block text-sm font-medium text-gray-700 mb-2">Where did you find us? (Optional)</label>
-              <select id="question-4" bind:value={formData.question_4} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <label for="source" class="block text-sm font-medium text-gray-700 mb-2">Where did you find us? (Optional)</label>
+              <select id="source" bind:value={formData.source} class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 <option value="">Select an option</option>
                 <option value="Social Media">Social Media</option>
                 <option value="Friend">Friend</option>
