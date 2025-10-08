@@ -9,6 +9,7 @@
     name: "",
     email: "",
     language: "",
+    about_yourself: "",
   };
   let dailyBriefing = {
     enabled: false,
@@ -36,15 +37,30 @@
       name: data.name,
       email: data.email,
       language: data.language,
+      about_yourself: data.about_yourself,
     };
 
-    dailyBriefing = {
-      enabled: data.daily_briefing.enabled,
-      time: String(data.daily_briefing.time)
-        .padStart(4, "0") // Ensure 4 digits
-        .replace(/(\d{2})(\d{2})/, "$1:$2"), // Insert colon
-    };
+    // dailyBriefing = {
+    //   enabled: data.daily_briefing.enabled,
+    //   time: String(data.daily_briefing.time)
+    //     .padStart(4, "0") // Ensure 4 digits
+    //     .replace(/(\d{2})(\d{2})/, "$1:$2"), // Insert colon
+    // };
   });
+
+  // Form validation states
+  let errors = {
+    name: "",
+    email: "",
+    language: "",
+    about_yourself: "",
+  };
+  let touched = {
+    name: false,
+    email: false,
+    language: false,
+    about_yourself: false,
+  };
 
   // Loading states
   let profileSaving = false;
@@ -55,6 +71,22 @@
   let notificationsSuccess = false;
 
   async function saveProfile() {
+    // Mark all fields as touched for validation
+    (Object.keys(touched) as Array<keyof typeof touched>).forEach((key) => {
+      touched[key] = true;
+    });
+
+    // Validate required fields
+    let hasErrors = false;
+    if (!profileData.about_yourself.trim()) {
+      errors.about_yourself = "Please tell us about yourself";
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
     profileSaving = true;
     profileError = "";
     profileSuccess = false;
@@ -78,6 +110,7 @@
           user_id,
           name: profileData.name,
           language: profileData.language,
+          about_yourself: profileData.about_yourself,
         }),
       });
 
@@ -259,6 +292,25 @@
             <option value="Arabic">Arabic</option>
             <option value="Russian">Russian</option>
           </select>
+        </div>
+
+        <div>
+          <label for="about_yourself" class="block text-sm font-medium text-gray-700 mb-2">Can you tell me more about yourself?</label>
+          <textarea
+            id="about_yourself"
+            bind:value={profileData.about_yourself}
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 min-h-[140px] transition-colors {errors.about_yourself && touched.about_yourself ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-emerald-500'}"
+            placeholder="Tell me about yourself like your work, hobbies, interests, goals, etc. The more details, the better!"
+            on:blur={() => (touched.about_yourself = true)}
+            on:input={() => {
+              if (profileData.about_yourself.trim()) {
+                errors.about_yourself = "";
+              }
+            }}
+          ></textarea>
+          {#if errors.about_yourself && touched.about_yourself}
+            <p class="mt-1 text-sm text-red-600">{errors.about_yourself}</p>
+          {/if}
         </div>
 
         <!-- Profile Error/Success Messages -->

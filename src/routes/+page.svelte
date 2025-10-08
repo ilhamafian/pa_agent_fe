@@ -73,6 +73,10 @@
   function navigateSomewhere() {
     goto("/onboarding");
   }
+
+  function handleLogin() {
+    goto("/auth/login");
+  }
 </script>
 
 <svelte:head>
@@ -84,6 +88,9 @@
   <div class="flex items-center gap-2">
     <img src="/lofy-logo.png" alt="Lofy" class="w-10 h-10" />
     <h1 class="text-2xl font-bold">Lofy Assistant</h1>
+  </div>
+  <div class="flex items-center gap-2">
+    <button on:click={handleLogin} class="bg-transparent border-primary border-2 text-primary px-6 py-2 rounded-lg font-medium hover:bg-primary/10 transition"> Login</button>
   </div>
   <div class="flex items-center gap-2">
     <button on:click={handleJoinWaitlist} class="bg-transparent border-primary border-2 text-primary px-6 py-2 rounded-lg font-medium hover:bg-primary/10 transition"> Join Waitlist</button>
