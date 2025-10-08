@@ -295,7 +295,7 @@
         </div>
 
         <div>
-          <label for="about_yourself" class="block text-sm font-medium text-gray-700 mb-2">Can you tell me more about yourself?</label>
+          <label for="about_yourself" class="block text-sm font-medium text-gray-700 mb-2">About You?</label>
           <textarea
             id="about_yourself"
             bind:value={profileData.about_yourself}
