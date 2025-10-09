@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { PUBLIC_BACKEND_URL } from "$env/static/public";
+  import { goto } from "$app/navigation";
   // Phone number state
   let selectedCountryCode = "+60";
   let phoneNumber = "";
@@ -27,6 +29,30 @@
     }
   }
 
+  async function handleForgotPin() {
+    try {
+      const response = await fetch(`${PUBLIC_BACKEND_URL}/forgot_pin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone_number: selectedCountryCode.replace("+", "") + phoneNumber,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send new PIN");
+      }
+
+      alert("New PIN sent to your phone");
+
+      goto("/auth/login");
+    } catch (error) {
+      console.error("Forgot PIN failed:", error);
+    }
+  }
+
   function handlePhoneInput(event: Event) {
     const target = event.target as HTMLInputElement;
     let value = target.value;
@@ -44,7 +70,7 @@
 </script>
 
 <div class="p-4 max-w-lg mx-auto">
-  <form method="POST" action="/dashboard" class="border-2 border-emerald-500 rounded-xl p-4 flex flex-col space-y-3">
+  <form on:submit|preventDefault={handleForgotPin} class="border-2 border-emerald-500 rounded-xl p-4 flex flex-col space-y-3">
     <h1 class="text-xl font-bold text-center">Reset PIN</h1>
     <!-- Phone Number Input -->
     <div class="space-y-2">
