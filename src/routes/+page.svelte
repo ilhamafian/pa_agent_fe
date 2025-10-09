@@ -1,7 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import * as Dialog from "$lib/components/dialog";
-  import { PUBLIC_BACKEND_URL } from "$env/static/public";
   import { StickyScrollReveal } from "$lib/components/sticky-scroll";
 
   const content = [
@@ -23,55 +22,31 @@
     },
   ];
 
-  let showWaitlistDialog = false;
+  let showRegisterDialog = false;
   let phoneNumber: string = "";
-  let waitlistSubmitting = false;
-  let waitlistError: string = "";
-  let waitlistSuccess = false;
+  let registerError: string = "";
 
-  function handleJoinWaitlist() {
-    waitlistError = "";
-    waitlistSuccess = false;
+  function handleRegister() {
+    registerError = "";
     phoneNumber = "";
-    showWaitlistDialog = true;
+    showRegisterDialog = true;
   }
 
-  async function handleWaitlistSubmit() {
-    waitlistError = "";
+  function handleRegisterSubmit() {
+    registerError = "";
     const trimmed = phoneNumber.trim();
     console.log("trimmed", trimmed);
 
     if (trimmed.length < 7) {
-      waitlistError = "Please enter a valid phone number.";
+      registerError = "Please enter a valid phone number.";
       return;
     }
-    try {
-      waitlistSubmitting = true;
-      // TODO: send to your backend/waitlist service
-      const response = await fetch(`${PUBLIC_BACKEND_URL}/waitlist`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ phone_number: trimmed }),
-      });
-      const data = await response.json();
-      console.log("data", data);
-      await new Promise((r) => setTimeout(r, 500));
-      waitlistSuccess = true;
-    } catch (e) {
-      waitlistError = "Something went wrong. Please try again.";
-    } finally {
-      waitlistSubmitting = false;
-    }
+    // Navigate to onboarding with phone number
+    goto(`/onboarding?phone_number=${encodeURIComponent(trimmed)}`);
   }
 
   function handleLearnMore() {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  function navigateSomewhere() {
-    goto("/onboarding");
   }
 
   function handleLogin() {
@@ -89,11 +64,9 @@
     <img src="/lofy-logo.png" alt="Lofy" class="w-10 h-10" />
     <h1 class="text-2xl font-bold">Lofy Assistant</h1>
   </div>
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-3">
     <button on:click={handleLogin} class="bg-transparent border-primary border-2 text-primary px-6 py-2 rounded-lg font-medium hover:bg-primary/10 transition"> Login</button>
-  </div>
-  <div class="flex items-center gap-2">
-    <button on:click={handleJoinWaitlist} class="bg-transparent border-primary border-2 text-primary px-6 py-2 rounded-lg font-medium hover:bg-primary/10 transition"> Join Waitlist</button>
+    <button on:click={handleRegister} class="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition shadow-md"> Register</button>
   </div>
 </nav>
 <!-- Hero Section -->
@@ -121,7 +94,7 @@
         </div>
 
         <div class="flex flex-col max-w-md mx-auto text-center gap-3">
-          <button on:click={handleJoinWaitlist} class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg"> Join Waitlist</button>
+          <button on:click={handleRegister} class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg"> Register</button>
           <button on:click={handleLearnMore} class="border border-foreground text-foreground px-6 py-3 rounded-lg font-semibold hover:bg-accent transition-colors"> Learn More </button>
         </div>
       </div>
@@ -295,7 +268,7 @@
       <h2 class="text-xl font-bold">Ready to Get Organized?</h2>
       <p class="text-sm text-primary-foreground/90">Start using your intelligent personal assistant today and experience the future of productivity.</p>
       <div class="flex flex-col gap-3">
-        <button on:click={handleJoinWaitlist} class="bg-primary-foreground text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/90 transition-colors shadow-lg"> Join Waitlist Now </button>
+        <button on:click={handleRegister} class="bg-primary-foreground text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/90 transition-colors shadow-lg"> Register Now </button>
         <!-- <a href="/dashboard" class="border border-primary-foreground/20 text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary-foreground/10 transition-colors"> View Dashboard </a> -->
       </div>
     </div>
@@ -338,37 +311,30 @@
   </footer>
 </div>
 
-<!-- Waitlist Dialog -->
-<Dialog.Root bind:open={showWaitlistDialog}>
+<!-- Register Dialog -->
+<Dialog.Root bind:open={showRegisterDialog}>
   <Dialog.Content>
     <Dialog.Header>
-      <Dialog.Title>Join the Waitlist</Dialog.Title>
-      <Dialog.Description>Enter your phone number and we'll notify you when it's ready.</Dialog.Description>
+      <Dialog.Title>Register</Dialog.Title>
+      <Dialog.Description>Enter your phone number to get started.</Dialog.Description>
     </Dialog.Header>
 
-    {#if waitlistSuccess}
-      <div class="mt-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">Thanks! You're on the waitlist. We'll text you with updates.</div>
-      <Dialog.Footer class="mt-4">
-        <Dialog.Close class="px-4 py-2 rounded-md bg-primary text-primary-foreground">Close</Dialog.Close>
+    <form class="mt-4 space-y-3" on:submit|preventDefault={handleRegisterSubmit}>
+      <div class="space-y-1">
+        <label for="phone" class="text-sm font-medium">Phone number</label>
+        <input id="phone" name="phone" type="tel" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 0179800424" bind:value={phoneNumber} inputmode="tel" autocomplete="tel" required />
+      </div>
+
+      {#if registerError}
+        <p class="text-sm text-destructive">{registerError}</p>
+      {/if}
+
+      <Dialog.Footer class="mt-2 gap-2">
+        <Dialog.Close class="px-4 py-2 text-sm rounded-md border">Cancel</Dialog.Close>
+        <button type="submit" class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground">
+          Continue
+        </button>
       </Dialog.Footer>
-    {:else}
-      <form class="mt-4 space-y-3" on:submit|preventDefault={handleWaitlistSubmit}>
-        <div class="space-y-1">
-          <label for="phone" class="text-sm font-medium">Phone number</label>
-          <input id="phone" name="phone" type="tel" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. 0179800424" bind:value={phoneNumber} inputmode="tel" autocomplete="tel" required />
-        </div>
-
-        {#if waitlistError}
-          <p class="text-sm text-destructive">{waitlistError}</p>
-        {/if}
-
-        <Dialog.Footer class="mt-2 gap-2">
-          <Dialog.Close class="px-4 py-2 text-sm rounded-md border">Cancel</Dialog.Close>
-          <button type="submit" class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground disabled:opacity-50" disabled={waitlistSubmitting}>
-            {waitlistSubmitting ? "Submitting..." : "Join Waitlist"}
-          </button>
-        </Dialog.Footer>
-      </form>
-    {/if}
+    </form>
   </Dialog.Content>
 </Dialog.Root>
