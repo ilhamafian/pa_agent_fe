@@ -73,19 +73,32 @@
 
         // Console log the structured data
         console.log("Form submission data:", formOutput);
-        const response = await fetch(`${PUBLIC_BACKEND_URL}/user_onboarding`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formOutput),
-        });
+        try {
+          const response = await fetch(`${PUBLIC_BACKEND_URL}/user_onboarding`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formOutput),
+          });
 
-        const result = await response.json();
-        console.log("Server replied:", result);
+          const result = await response.json();
 
-        // Navigate to dashboard
-        goto("/dashboard");
+          console.log("Server replied:", result);
+
+          if (response.ok) {
+            localStorage.setItem("token", result.token);
+
+            // Navigate to dashboard
+            goto("/dashboard");
+          } else {
+            alert(result.detail || result.message || "Login failed");
+            console.error("Login failed");
+          }
+        } catch (error) {
+          console.error("Onboarding failed:", error);
+          alert("Something went wrong during onboarding");
+        }
       }
     }
   }

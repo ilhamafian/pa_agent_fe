@@ -232,7 +232,7 @@
 
     <!-- Quick Actions -->
     <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-4">
-      <h3 class="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h3>
+      <h3 class="text-lg font-semibold text-gray-900 mb-3">Quick Actions (Coming Soon!)</h3>
       <div class="grid grid-cols-2 gap-2">
         <button class="flex flex-col items-center p-3 bg-emerald-50 rounded-lg active:bg-emerald-100 transition-colors">
           <svg class="w-5 h-5 text-emerald-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
