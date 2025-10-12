@@ -44,7 +44,8 @@
     }
 
     // Extract phone number from URL query parameter
-    urlPhoneNumber = phone_number;
+    // Convert phone number to integer and store
+    urlPhoneNumber = phone_number ? parseInt(phone_number, 10).toString() : "";
     console.log("In urlPhoneNumber:", urlPhoneNumber);
 
     // ✅ Else, continue to onboarding page
