@@ -1,6 +1,11 @@
 <script lang="ts">
   import { PUBLIC_BACKEND_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
+
+  // Get message from URL if present
+  let message = $page.url.searchParams.get("message");
+
   // Phone number state
   let selectedCountryCode = "+60";
   let phoneNumber = "";
@@ -146,6 +151,11 @@
 </script>
 
 <div class="p-4 max-w-lg mx-auto">
+  {#if message}
+    <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-700">
+      {message}
+    </div>
+  {/if}
   <form on:submit|preventDefault={login} class="border-2 border-emerald-500 rounded-xl p-4 flex flex-col space-y-3">
     <h1 class="text-xl font-bold text-center">Login</h1>
     <!-- Phone Number Input -->

@@ -76,9 +76,14 @@
         },
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        dashboardData = await res.json();
+        dashboardData = data;
         console.log("Dashboard data:", dashboardData);
+      } else if (data.detail === "Token expired") {
+        localStorage.removeItem("token");
+        goto("/auth/login?message=Session expired. Please log in again.");
       } else {
         console.error("Failed to fetch dashboard data");
       }
