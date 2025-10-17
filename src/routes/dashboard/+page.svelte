@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
 
   interface Event {
     title: string;
@@ -63,8 +64,9 @@
     if (!browser) return;
 
     const token = localStorage.getItem("token");
+    const phoneNumber = $page.url.searchParams.get("phone_number");
     if (!token) {
-      return goto("/auth/login");
+      return goto(phoneNumber ? `/auth/login?phone_number=${phoneNumber}` : "/auth/login");
     }
 
     try {
@@ -83,7 +85,8 @@
         console.log("Dashboard data:", dashboardData);
       } else if (data.detail === "Token expired") {
         localStorage.removeItem("token");
-        goto("/auth/login?message=Session expired. Please log in again.");
+        const phoneNumber = $page.url.searchParams.get("phone_number");
+        goto(phoneNumber ? `/auth/login?message=Session expired. Please log in again.&phone_number=${phoneNumber}` : "/auth/login?message=Session expired. Please log in again.");
       } else {
         console.error("Failed to fetch dashboard data");
       }

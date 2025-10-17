@@ -3,15 +3,34 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
 
-  // Get message from URL if present
+  // Get URL parameters
   let message = $page.url.searchParams.get("message");
+  let urlPhoneNumber = $page.url.searchParams.get("phone_number");
 
   // Phone number state
-  let selectedCountryCode = "+60";
-  let phoneNumber = "";
+  // Initialize phone number state
+  const countryCodes = [{ code: "+60" }, { code: "+65" }, { code: "+1" }, { code: "+44" }, { code: "+91" }, { code: "+86" }, { code: "+81" }, { code: "+82" }, { code: "+66" }, { code: "+84" }];
   let showCountryDropdown = false;
 
-  const countryCodes = [{ code: "+60" }, { code: "+65" }, { code: "+1" }, { code: "+44" }, { code: "+91" }, { code: "+86" }, { code: "+81" }, { code: "+82" }, { code: "+66" }, { code: "+84" }];
+  // Parse phone number from URL if present
+  let selectedCountryCode = "+60";
+  let phoneNumber = "";
+
+  if (urlPhoneNumber) {
+    // Try to match the phone number with available country codes
+    const matchedCode = countryCodes
+      .map((c) => c.code.replace("+", ""))
+      .sort((a, b) => b.length - a.length) // Sort by length to match longer codes first
+      .find((code) => urlPhoneNumber.startsWith(code));
+
+    if (matchedCode) {
+      selectedCountryCode = "+" + matchedCode;
+      phoneNumber = urlPhoneNumber.slice(matchedCode.length);
+    } else {
+      // If no country code matches, use default and full number
+      phoneNumber = urlPhoneNumber;
+    }
+  }
 
   // PIN verification state
   let pinDigits = ["", "", "", "", "", ""];
